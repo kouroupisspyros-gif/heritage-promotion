@@ -26,4 +26,49 @@ load_leaflet: 1
 <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
    crossorigin=""></script>
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>              
+<script>
+  // Παίρνουμε το Wikidata ID της σελίδας
+  const wikidatum = '{{ page.wikidatum }}';
+
+  // Κάνουμε αίτημα στα δεδομένα του Wikidata
+  fetch(`https://www.wikidata.org/wiki/Special:EntityData/${wikidatum}.json`)
+    .then(r => r.json())
+    .then(data => {
+      const e = data.entities[wikidatum];
+
+      // Παίρνουμε περιγραφή
+      const desc = e.descriptions?.el?.value || e.descriptions?.en?.value || '';
+      document.getElementById('wikidata_descr').innerText = desc;
+
+      // Παίρνουμε εικόνα
+      const img = e.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
+      if (img) {
+        document.getElementById('wikidata_img').src =
+          `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(img)}?width=800`;
+      }
+
+      // Παίρνουμε συντεταγμένες (latitude, longitude)
+      const coord = e.claims?.P625?.[0]?.mainsnak?.datavalue?.value;
+      const lat = coord?.latitude || 39.62;  // default Κέρκυρα
+      const lon = coord?.longitude || 19.92;
+
+      // Δημιουργούμε τον χάρτη ΜΟΝΟ ΜΙΑ ΦΟΡΑ
+      const map = L.map('mapid', {
+        fullscreenControl: true,
+      }).setView([lat, lon], 14);
+
+      // Προσθέτουμε layer από το OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Προσθέτουμε marker
+      L.marker([lat, lon]).addTo(map)
+        .bindPopup(`<b>${e.labels?.el?.value || e.labels?.en?.value || '{{ page.title }}'}</b><br>${desc}`)
+        .openPopup();
+    })
+    .catch(err => console.error('Wikidata error:', err));
+</script>
+
