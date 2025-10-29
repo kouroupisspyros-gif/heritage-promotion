@@ -3,36 +3,25 @@ layout: default
 load_leaflet: 1
 ---
 
-<h1>{{ page.title }}</h1>
-<img id="wikidata_img" style="width:100%; max-width:700px; border-radius:10px; margin:20px 0;">
-<p id="wikidata_descr" style="font-size:1.1em; color:#444;"></p>
+<h1 style="float:right; font-size:64pt; color:#f1f1f1">{{page.title}}</h1>
+<h2 id="wikidata_title"></h2>
+<h3 id="wikidata_descr"></h3>
+<a id="wikidata_href" target="_blank"><img src = "https://upload.wikimedia.org/wikipedia/commons/archive/5/5a/20211013163259%21Wikipedia%27s_W.svg" alt="Wikipedia link" height="20px"/> <span id="wikipedia_title"> </a>
+<p id="wikidata_location"></p>
 
-<div id="map" style="height:300px; margin-top:20px;"></div>
+<img id="wikidata_img" style="width:100%; padding-bottom:5px;" />
 
-<script>
-const wikidatum = '{{ page.wikidatum }}';
-const url = `https://www.wikidata.org/wiki/Special:EntityData/${wikidatum}.json`;
+<div id="map" style="height: 180px; width:100%; background-color:lightgrey"></div>
 
-fetch(url)
-  .then(res => res.json())
-  .then(data => {
-    const entity = data.entities[wikidatum];
-    const desc = entity.descriptions?.el?.value || entity.descriptions?.en?.value || '';
-    const img = entity.claims?.P18 ? entity.claims.P18[0].mainsnak.datavalue.value : '';
-    document.getElementById('wikidata_descr').innerText = desc;
-    if (img) {
-      document.getElementById('wikidata_img').src = 
-        `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(img)}?width=800`;
-    }
+{{ content }}
 
-    // Αν έχει συντεταγμένες (P625)
-    const coords = entity.claims?.P625?.[0]?.mainsnak?.datavalue?.value;
-    if (coords) {
-      const lat = coords.latitude;
-      const lon = coords.longitude;
-      const map = L.map('map').setView([lat, lon], 15);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-      L.marker([lat, lon]).addTo(map).bindPopup('{{ page.title }}').openPopup();
-    }
-  });
-</script>
+<img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Wikidata_Stamp_Rec_Light.svg" style="float:right; width:100px" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script>var wikidatum = '{{page.wikidatum}}'</script>
+<script src="{{ '/assets/js/get_wiki_item.js' | relative_url }}"></script>
+
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
+   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
+   crossorigin=""></script>
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
