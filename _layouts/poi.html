@@ -3,25 +3,49 @@ layout: default
 load_leaflet: 1
 ---
 
-<h1 style="float:right; font-size:64pt; color:#f1f1f1">{{page.title}}</h1>
-<h2 id="wikidata_title"></h2>
-<h3 id="wikidata_descr"></h3>
-<a id="wikidata_href" target="_blank"><img src = "https://upload.wikimedia.org/wikipedia/commons/archive/5/5a/20211013163259%21Wikipedia%27s_W.svg" alt="Wikipedia link" height="20px"/> <span id="wikipedia_title"> </a>
-<p id="wikidata_location"></p>
+<!-- ====== ΚΕΦΑΛΙΔΑ ====== -->
+<section style="background:#003366; color:white; padding:40px 20px; border-radius:0 0 20px 20px;">
+  <div style="max-width:900px; margin:auto; text-align:center;">
+    <h1 style="font-size:48pt; margin-bottom:10px;">{{ page.title }}</h1>
+    <h3 id="wikidata_descr" style="font-weight:normal; opacity:0.9;"></h3>
+  </div>
+</section>
 
-<img id="wikidata_img" style="width:100%; padding-bottom:5px;" />
+<!-- ====== ΚΥΡΙΟ ΠΕΡΙΕΧΟΜΕΝΟ ====== -->
+<main style="max-width:900px; margin:auto; padding:30px;">
 
-<div id="map" style="height: 180px; width:100%; background-color:lightgrey"></div>
+  <!-- Εικόνα -->
+  <div style="text-align:center; margin-bottom:30px;">
+    <img id="wikidata_img" style="width:100%; max-width:700px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.2);" />
+  </div>
 
-{{ content }}
+  <!-- Περιγραφή & Σύνδεσμος -->
+  <div style="margin-bottom:30px; font-size:1.1em; line-height:1.6; color:#333;">
+    <a id="wikidata_href" target="_blank" style="text-decoration:none; color:#0056b3; font-weight:bold;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/archive/5/5a/20211013163259%21Wikipedia%27s_W.svg"
+           alt="Wikipedia" height="20px" style="vertical-align:middle; margin-right:5px;">
+      <span id="wikipedia_title"></span>
+    </a>
+    <p id="wikidata_location" style="margin-top:10px;"></p>
+  </div>
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Wikidata_Stamp_Rec_Light.svg" style="float:right; width:100px" />
+  <!-- Χάρτης -->
+  <div id="map" style="height: 300px; width:100%; border-radius:15px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.1);"></div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-<script>var wikidatum = '{{page.wikidatum}}'</script>
+</main>
+
+<!-- ====== ΣΗΜΑ WIKIDATA ====== -->
+<footer style="text-align:right; padding:20px; max-width:900px; margin:auto;">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Wikidata_Stamp_Rec_Light.svg"
+       style="width:80px; opacity:0.8;" />
+</footer>
+
+<!-- ====== SCRIPTS ====== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>var wikidatum = '{{ page.wikidatum }}';</script>
 <script src="{{ '/assets/js/get_wiki_item.js' | relative_url }}"></script>
 
-<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
-   integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
-   crossorigin=""></script>
+<!-- Leaflet + πλήρης οθόνη -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
