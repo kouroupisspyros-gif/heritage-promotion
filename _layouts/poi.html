@@ -1,74 +1,103 @@
-
 ---
 layout: default
 load_leaflet: 1
 ---
 
-<h1 style="float:right; font-size:64pt; color:#f1f1f1">{{page.title}}</h1>
-<h2 id="wikidata_title"></h2>
-<h3 id="wikidata_descr"></h3>
-<a id="wikidata_href" target="_blank"><img src = "https://upload.wikimedia.org/wikipedia/commons/archive/5/5a/20211013163259%21Wikipedia%27s_W.svg" alt="Wikipedia link" height="20px"/> <span id="wikipedia_title"> </a>
-<p id="wikidata_location"></p>
+<!-- ====== ΕΝΑΡΞΗ ΠΕΡΙΕΧΟΜΕΝΟΥ ====== -->
 
-<img id="wikidata_img" style="width:100%; padding-bottom:5px;" />
+<section style="background:#003366; color:white; padding:40px 20px; border-radius:0 0 20px 20px;">
+  <div style="max-width:900px; margin:auto; text-align:center;">
+    <h1 style="font-size:48pt; margin-bottom:10px;">{{ page.title }}</h1>
+    <h3 id="wikidata_descr" style="font-weight:normal; opacity:0.9;"></h3>
+  </div>
+</section>
 
-<div id="mapid" style="height:400px; width:100%; border-radius:10px; margin-top:20px;"></div>
+<main style="max-width:900px; margin:auto; padding:30px;">
 
+  <!-- Εικόνα -->
+  <div style="text-align:center; margin-bottom:30px;">
+    <img id="wikidata_img" style="width:100%; max-width:700px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.2);" />
+  </div>
 
-{{ content }}
+  <!-- Σύνδεσμος Wikipedia -->
+  <div style="margin-bottom:30px; font-size:1.1em; line-height:1.6; color:#333; text-align:center;">
+    <a id="wikidata_href" target="_blank" style="text-decoration:none; color:#0056b3; font-weight:bold;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/archive/5/5a/20211013163259%21Wikipedia%27s_W.svg"
+           alt="Wikipedia" height="20px" style="vertical-align:middle; margin-right:5px;">
+      <span id="wikipedia_title"></span>
+    </a>
+  </div>
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Wikidata_Stamp_Rec_Light.svg" style="float:right; width:100px" />
+  <!-- Χάρτης -->
+  <div id="mapid" style="height:400px; width:100%; border-radius:15px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.15);"></div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-<script>var wikidatum = '{{page.wikidatum}}'</script>
-<script src="{{ '/assets/js/get_wiki_item.js' | relative_url }}"></script>
+  <!-- Κουμπί επιστροφής -->
+  <div style="text-align:center; margin-top:30px;">
+    <a href="{{ '/' | relative_url }}" style="background:#003366; color:white; padding:10px 20px; border-radius:8px; text-decoration:none; font-weight:bold;">
+      ← Επιστροφή στα Αγάλματα
+    </a>
+  </div>
 
+</main>
+
+<footer style="text-align:right; padding:20px; max-width:900px; margin:auto;">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Wikidata_Stamp_Rec_Light.svg"
+       style="width:80px; opacity:0.8;" />
+</footer>
+
+<!-- ====== ΕΝΣΩΜΑΤΩΣΗ ΒΙΒΛΙΟΘΗΚΩΝ ====== -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"
    integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ=="
    crossorigin=""></script>
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>              
+<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+
+<!-- ====== SCRIPT WIKIDATA & MAP ====== -->
 <script>
-  // Παίρνουμε το Wikidata ID της σελίδας
   const wikidatum = '{{ page.wikidatum }}';
 
-  // Κάνουμε αίτημα στα δεδομένα του Wikidata
   fetch(`https://www.wikidata.org/wiki/Special:EntityData/${wikidatum}.json`)
     .then(r => r.json())
     .then(data => {
       const e = data.entities[wikidatum];
 
-      // Παίρνουμε περιγραφή
+      // Τίτλος και περιγραφή
+      const title = e.labels?.el?.value || e.labels?.en?.value || '{{ page.title }}';
       const desc = e.descriptions?.el?.value || e.descriptions?.en?.value || '';
       document.getElementById('wikidata_descr').innerText = desc;
 
-      // Παίρνουμε εικόνα
+      // Εικόνα
       const img = e.claims?.P18?.[0]?.mainsnak?.datavalue?.value;
       if (img) {
         document.getElementById('wikidata_img').src =
           `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(img)}?width=800`;
       }
 
-      // Παίρνουμε συντεταγμένες (latitude, longitude)
+      // Σύνδεσμος Wikipedia (αν υπάρχει)
+      const wikiSite = e.sitelinks?.elwiki?.url || e.sitelinks?.enwiki?.url;
+      if (wikiSite) {
+        document.getElementById('wikidata_href').href = wikiSite;
+        document.getElementById('wikipedia_title').innerText = "Άνοιγμα στη Wikipedia";
+      }
+
+      // Συντεταγμένες
       const coord = e.claims?.P625?.[0]?.mainsnak?.datavalue?.value;
-      const lat = coord?.latitude || 39.62;  // default Κέρκυρα
+      const lat = coord?.latitude || 39.62;  // default: Κέρκυρα
       const lon = coord?.longitude || 19.92;
 
-      // Δημιουργούμε τον χάρτη ΜΟΝΟ ΜΙΑ ΦΟΡΑ
-      const map = L.map('mapid', {
-        fullscreenControl: true,
-      }).setView([lat, lon], 14);
+      // Δημιουργία χάρτη (ένας μόνο!)
+      const map = L.map('mapid', { fullscreenControl: true }).setView([lat, lon], 14);
 
-      // Προσθέτουμε layer από το OpenStreetMap
+      // Προσθήκη layer από το OpenStreetMap
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
       }).addTo(map);
 
-      // Προσθέτουμε marker
+      // Marker στη θέση
       L.marker([lat, lon]).addTo(map)
-        .bindPopup(`<b>${e.labels?.el?.value || e.labels?.en?.value || '{{ page.title }}'}</b><br>${desc}`)
+        .bindPopup(`<b>${title}</b><br>${desc}`)
         .openPopup();
     })
     .catch(err => console.error('Wikidata error:', err));
 </script>
-
